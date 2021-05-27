@@ -10,12 +10,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/nfnt/resize"
+	"github.com/disintegration/imaging"
 )
 
 func main() {
 	path := flag.String("path", "", "photography path")
-	width := flag.Int("width", 300, "resize to width")
+	width := flag.Int("width", 1000, "resize to width")
 	flag.Parse()
 
 	if *path == "" {
@@ -54,18 +54,12 @@ func getImagesPath(p string) []string {
 
 func resizeImages(arr []string, width int) {
 	for _, path := range arr {
-		file, err := os.Open(path)
+		img, err := imaging.Open(path, imaging.AutoOrientation(true))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		img, err := jpeg.Decode(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-		file.Close()
-
-		m := resize.Resize(uint(width), 0, img, resize.Lanczos3)
+		m := imaging.Resize(img, width, 0, imaging.Lanczos)
 
 		out, err := os.Create(path + ".thumbnail.jpg")
 		if err != nil {
